@@ -23,9 +23,10 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://schema.pivotal.io/gemfire/cache http://schema.pivotal.io/gemfire/cache/cache-8.1.xsd"
     version="8.1">
-    
-    <cache-server port="33404"/>
-    
-    <region name="testRegion" refid="PARTITION"/>
 
+	<cache-server port="33404" />
+
+	<region name="testRegion" refid="PARTITION">
+		<partition-attributes redundant-copies="1" local-max-memory="1024" />
+	</region>
 </cache>

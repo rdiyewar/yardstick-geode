@@ -15,7 +15,7 @@
 -->
 
 <!--
-    Gemfrie configuration file to startup Gemfire server.
+    Gemfrie configuration file to startup Gemfire Accessor.
 -->
 
 <cache
@@ -24,8 +24,9 @@
     xsi:schemaLocation="http://schema.pivotal.io/gemfire/cache http://schema.pivotal.io/gemfire/cache/cache-8.1.xsd"
     version="8.1">
 
-    <region name="testRegion" refid="PARTITION">
-    	<partition-attributes redundant-copies="1" local-max-memory="0"/>
+	<region name="testRegion" refid="PARTITION">
+		<partition-attributes redundant-copies="1"
+			local-max-memory="0" />
 	</region>
 	
 </cache>
