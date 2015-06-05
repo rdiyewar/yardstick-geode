@@ -25,14 +25,14 @@ The documentation below describes configuration parameters in addition to standa
 
 ## Installation
 1. Create a local clone of repository
-2. Run `mvn package` command for Yardstick Apache Ignite POM
+2. Run `mvn package` command for Yardstick Apache Geode POM
 
 ## Provided Benchmarks
 The following benchmarks are provided:
 
-1. `GetBenchmark` - benchmarks atomic distributed cache get operation
-2. `PutBenchmark` - benchmarks atomic distributed cache put operation
-3. `PutGetBenchmark` - benchmarks atomic distributed cache put and get operations together
+1. `GeodeGetBenchmark` - benchmarks atomic distributed cache get operation
+2. `GeodePutBenchmark` - benchmarks atomic distributed cache put operation
+3. `GeodePutGetBenchmark` - benchmarks atomic distributed cache put and get operations together
 
 ## Writing Apache Geode Benchmarks
 All benchmarks extend `GeodeAbstractBenchmark` class. A new benchmark should also extend this abstract class and implement `test` method. This is the method that is actually benchmarked.
@@ -41,7 +41,7 @@ All benchmarks extend `GeodeAbstractBenchmark` class. A new benchmark should als
 Before running Apache Geode benchmarks, run `mvn package` command. This command will compile the project and also will unpack scripts from `yardstick-resources.zip` file to `bin` directory.
 
 ### Properties And Command Line Arguments
-> Note that this section only describes configuration parameters specific to Apache Ignite benchmarks, and not for Yardstick framework. To run Apache Ignite benchmarks and generate graphs, you will need to run them using Yardstick framework scripts in `bin` folder.
+> Note that this section only describes configuration parameters specific to Apache Geode benchmarks, and not for Yardstick framework. To run Apache Geode benchmarks and generate graphs, you will need to run them using Yardstick framework scripts in `bin` folder.
 
 > Refer to [Yardstick Documentation](https://github.com/gridgain/yardstick) for common Yardstick properties and command line arguments for running Yardstick scripts.
 
@@ -52,7 +52,7 @@ The following Apache Geode benchmark properties can be defined in the benchmark 
 * `-gfcfg <path>` or `--gfConfig <path>` - Path to Geode configuration file
 * `-gfclicfg <path>` or `--gfClientConfig <path>` - Path to Geode client configuration file
 * `-gfacfg <path>` or `--gfAccessorConfig <path>` - Path to Geode accessor configuration file
-* `-cm` or `--clientMode` - Flag indicating whether Hazelcast client is used
+* `-cm` or `--clientMode` - Flag indicating whether Geode client is used
 * `-r <num>` or `--range` - Range of keys that are randomly generated for cache operations
 
 For example if we need to run 2 `GeodeNode` servers on localhost with `GeodePutBenchmark` benchmark on localhost then the following configuration should be specified in `benchmark.properties` file:
