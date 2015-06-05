@@ -49,7 +49,7 @@ public class GeodeNode implements BenchmarkServer {
     configureAndStart(benchArgs, cfg);
     waitForNodes(benchArgs);
 
-    println(cfg, "Geode member started.");
+    println(cfg, "All Geode members started.");
   }
 
   /**
@@ -88,9 +88,10 @@ public class GeodeNode implements BenchmarkServer {
   private void waitForNodes(GeodeBenchmarkArguments benchArgs) throws Exception {
     boolean allStarted = false;
     while (!allStarted) {
-      Set<DistributedMember> members = gemCache.getDistributedSystem()
+      Set<DistributedMember> otherMembers = gemCache.getDistributedSystem()
           .getAllOtherMembers();
-      if (members.size() >= benchArgs.nodes() - 2) {
+      int expNodes = benchArgs.clientMode() ? benchArgs.nodes() - 2 : benchArgs.nodes() - 1;
+      if (otherMembers.size() >= expNodes) {
         allStarted = true;
       }
       else {

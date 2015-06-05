@@ -25,7 +25,7 @@ public class GeodeBenchmarkArguments {
   @Parameter(names = { "-nn", "--nodeNumber" }, description = "Node number")
   private int nodes = 1;
 
-  /** */
+  /* unused */
   @Parameter(names = { "-b", "--backups" }, description = "Backups")
   private int backups;
 
@@ -91,7 +91,7 @@ public class GeodeBenchmarkArguments {
   /**
    * @return Accessor Configuration file.
    */
-  public String AccessorConfiguration() {
+  public String accessorConfiguration() {
     return gfAccessorCfg;
   }
   

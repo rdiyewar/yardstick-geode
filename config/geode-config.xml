@@ -27,6 +27,9 @@
 	<cache-server port="33404" />
 
 	<region name="testRegion" refid="PARTITION">
-		<partition-attributes redundant-copies="1" local-max-memory="1024" />
+		<region-attributes>
+			<partition-attributes redundant-copies="1" local-max-memory="1024" />
+		</region-attributes>
 	</region>
+	
 </cache>

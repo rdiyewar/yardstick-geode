@@ -28,14 +28,11 @@
 			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
 		</license>
 	</licenses>
-    
-<!-- 
-  	todo 
-    <scm>
-        <url>https://github.com/rdiyewar/yardstick-geode</url>
-        <connection>scm:git:git://github.com/rdiyewar/yardstick-geode.git</connection>
-    </scm>
--->
+
+	<scm>
+		<url>https://github.com/rdiyewar/yardstick-geode</url>
+		<connection>scm:git:git://github.com/rdiyewar/yardstick-geode.git</connection>
+	</scm>
 
 	<repositories>
 		<repository>

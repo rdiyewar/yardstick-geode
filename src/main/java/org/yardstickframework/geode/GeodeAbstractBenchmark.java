@@ -59,7 +59,8 @@ public abstract class GeodeAbstractBenchmark extends BenchmarkDriverAdapter {
         jcommander(cfg.commandLineArguments(), args, "<geode-driver>");
         configureGFClient(args, cfg);
         
-        println("Geode client configured. cache=" + gemCache.getName() + " region=" + testRegion.getFullPath());
+        String mode = args.clientMode() ? "client" : "accessor";
+        println("Geode " + mode + " configured. cache=" + gemCache.getName() + " region=" + testRegion.getFullPath());
         println(cfg, "Geode benchmark config: [" + cfg + "].");
     }
 
@@ -80,7 +81,7 @@ public abstract class GeodeAbstractBenchmark extends BenchmarkDriverAdapter {
         gemCache = new CacheFactory()
         .set("mcast-port", "10111")
         .set("log-level", "info")
-        .set("cache-xml-file", args.configuration())
+        .set("cache-xml-file", args.accessorConfiguration())
         .create();
       } 
       testRegion = gemCache.getRegion("testRegion");
