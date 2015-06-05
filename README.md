@@ -69,4 +69,4 @@ CONFIGS="-dn GeodePutBenchmark -sn GeodeNode"
 Use GitHub [issues](https://github.com/rdiyewar/yardstick-geode/issues) to file bugs.
 
 ## License
-Yardstick Apache Ignite is available under [Apache 2.0](http://www.apache.org/licenses/LICENSE-2.0.html) Open Source license.
+Yardstick Geode is available under [Apache 2.0](http://www.apache.org/licenses/LICENSE-2.0.html) Open Source license.
