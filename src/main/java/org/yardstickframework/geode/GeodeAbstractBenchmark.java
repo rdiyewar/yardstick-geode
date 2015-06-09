@@ -17,6 +17,7 @@ package org.yardstickframework.geode;
 import static org.yardstickframework.BenchmarkUtils.jcommander;
 import static org.yardstickframework.BenchmarkUtils.println;
 
+import java.lang.management.ManagementFactory;
 import java.util.concurrent.ThreadLocalRandom;
 
 import org.yardstickframework.BenchmarkConfiguration;
@@ -26,7 +27,11 @@ import org.yardstickframework.BenchmarkUtils;
 import com.gemstone.gemfire.cache.CacheFactory;
 import com.gemstone.gemfire.cache.GemFireCache;
 import com.gemstone.gemfire.cache.Region;
+import com.gemstone.gemfire.cache.client.ClientCache;
 import com.gemstone.gemfire.cache.client.ClientCacheFactory;
+import com.gemstone.gemfire.cache.client.Pool;
+import com.gemstone.gemfire.cache.client.PoolFactory;
+import com.gemstone.gemfire.cache.client.PoolManager;
 
 
 /**
@@ -70,20 +75,27 @@ public abstract class GeodeAbstractBenchmark extends BenchmarkDriverAdapter {
      * @param args Arguments.
      */
     private void configureGFClient(GeodeBenchmarkArguments args , BenchmarkConfiguration cfg) {
+      String pid = ManagementFactory.getRuntimeMXBean().getName().replace('@','-');
+
       if(args.clientMode()){
-        gemCache = new ClientCacheFactory()
-        .set("name", "GeodeClient")
+        //client mode
+        gemCache = new ClientCacheFactory()        
         .set("cache-xml-file", args.clientConfiguration())
-        .setPoolSubscriptionEnabled(true)        
-        .set("log-level", "info")
+        .set("statistic-archive-file", "stat-" + pid + ".gfs")
+        .addPoolServer(serverHost(cfg), args.serverPort())
+        .setPoolSubscriptionEnabled(true)
         .create();
+        
       }else{
+        //peer accessor mode
         gemCache = new CacheFactory()
-        .set("mcast-port", "10111")
-        .set("log-level", "info")
+        .set("mcast-port", "10111")        
         .set("cache-xml-file", args.accessorConfiguration())
+        .set("statistic-archive-file", "stat-" + pid + ".gfs")
+        .set("statistic-archive-file", "stat-" + pid + ".gfs")
         .create();
       } 
+      
       testRegion = gemCache.getRegion("testRegion");
     }
 
@@ -120,5 +132,14 @@ public abstract class GeodeAbstractBenchmark extends BenchmarkDriverAdapter {
      */
     protected int nextRandom(int min, int max) {
         return ThreadLocalRandom.current().nextInt(max - min) + min;
+    }
+    
+    /**
+     * @return Server host name Client will connect to.
+     * used only in client mode.
+     */
+    private String serverHost(BenchmarkConfiguration cfg) {
+      String hosts = cfg.customProperties().get("SERVER_HOSTS");
+      return hosts.split(",")[0];
     }
 }

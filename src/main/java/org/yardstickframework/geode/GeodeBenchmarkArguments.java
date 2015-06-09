@@ -14,7 +14,7 @@
 
 package org.yardstickframework.geode;
 
-import com.beust.jcommander.*;
+import com.beust.jcommander.Parameter;
 
 /**
  * Input arguments for geode benchmarks.
@@ -43,6 +43,11 @@ public class GeodeBenchmarkArguments {
   private boolean clientMode = false;
 
   /** */
+  @Parameter(names = { "-sp", "--serverPort" }, description = "Server port client will connect to")
+  private int serverPort;
+
+  
+  /** */
   @Parameter(names = { "-r", "--range" }, description = "Key range")
   private int range = 1_000_000;
 
@@ -52,7 +57,14 @@ public class GeodeBenchmarkArguments {
   public boolean clientMode() {
     return clientMode;
   }
-
+  
+  /**
+   * @return Server port client will connect to.
+   */
+  public int serverPort() {
+    return serverPort;
+  }
+  
   /**
    * @return Backups.
    */
@@ -105,13 +117,22 @@ public class GeodeBenchmarkArguments {
   /** {@inheritDoc} */
   @Override
   public String toString() {
-    return getClass().getSimpleName()
-        + " [nodes=" + nodes
-        + ", backups=" + backups 
-        + ", gfConfig='" + gfCfg + '\''
-        + ", gfAccessorConfig=" + gfAccessorCfg + '\''
-        + ", gfClientCfg='" + gfClientCfg + '\'' 
-        + ", clientMode=" + clientMode
-        + ", range=" + range + ']';
+    StringBuffer str = new StringBuffer(getClass().getSimpleName());
+    str.append(" [nodes=" + nodes)
+        .append(", backups=" + backups)
+        .append(", clientMode=" + clientMode)
+        .append(", gfConfig='" + gfCfg + '\'');
+
+    if (clientMode) {
+      str.append(", gfClientCfg='" + gfClientCfg + '\'')          
+          .append(", serverPort=" + serverPort);
+    }
+    else {
+      str.append(", gfAccessorConfig='" + gfAccessorCfg + '\'');
+    }
+    
+    str.append(", range=" + range + ']');
+
+    return str.toString();
   }
 }

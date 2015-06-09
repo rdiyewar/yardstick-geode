@@ -17,6 +17,8 @@ package org.yardstickframework.geode;
 import static org.yardstickframework.BenchmarkUtils.jcommander;
 import static org.yardstickframework.BenchmarkUtils.println;
 
+import java.io.IOException;
+import java.lang.management.ManagementFactory;
 import java.util.Set;
 
 import org.yardstickframework.BenchmarkConfiguration;
@@ -25,6 +27,7 @@ import org.yardstickframework.BenchmarkUtils;
 
 import com.gemstone.gemfire.cache.Cache;
 import com.gemstone.gemfire.cache.CacheFactory;
+import com.gemstone.gemfire.cache.server.CacheServer;
 import com.gemstone.gemfire.distributed.DistributedMember;
 
 /**
@@ -61,10 +64,32 @@ public class GeodeNode implements BenchmarkServer {
   private void configureAndStart(GeodeBenchmarkArguments benchArgs,
       BenchmarkConfiguration cfg) {
     if (gemCache == null) {
-      gemCache = new CacheFactory().set("mcast-port", "10111")
-          .set("log-level", "info")
+      String pid = ManagementFactory.getRuntimeMXBean().getName().replace('@','-');
+      gemCache = new CacheFactory()
+          .set("mcast-port", "10111") 
+          .set("statistic-archive-file", "stat-" + pid + ".gfs")
           .set("cache-xml-file", benchArgs.configuration())
           .create();
+      
+      //start cache server in client mode
+      if(benchArgs.clientMode()){
+        CacheServer cServer = gemCache.addCacheServer();
+        int port = benchArgs.serverPort();
+        int tryCnt = 0;
+        boolean started = false;        
+        while (!started && tryCnt < 100){
+          try {
+            cServer.setPort(port);
+            cServer.start();
+            started=true;
+          }
+          catch (IOException e) {
+            println(cfg, "Unable to start cache server on port=" + port);
+            port ++;
+            tryCnt++;
+          }  
+        }
+      } 
     }
   }
 

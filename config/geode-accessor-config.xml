@@ -15,7 +15,7 @@
 -->
 
 <!--
-    Gemfrie configuration file to startup Gemfire Accessor.
+    Configuration file to startup Geode Accessor (peer server without hosting data locally).
 -->
 
 <cache
