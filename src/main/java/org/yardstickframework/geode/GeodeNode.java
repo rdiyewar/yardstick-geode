@@ -67,7 +67,7 @@ public class GeodeNode implements BenchmarkServer {
       String pid = ManagementFactory.getRuntimeMXBean().getName().replace('@','-');
       gemCache = new CacheFactory()
           .set("mcast-port", "10111") 
-          .set("statistic-archive-file", "stat-" + pid + ".gfs")
+          .set("statistic-archive-file", "stat-server-" + pid + ".gfs")
           .set("cache-xml-file", benchArgs.configuration())
           .create();
       

@@ -81,7 +81,7 @@ public abstract class GeodeAbstractBenchmark extends BenchmarkDriverAdapter {
         //client mode
         gemCache = new ClientCacheFactory()        
         .set("cache-xml-file", args.clientConfiguration())
-        .set("statistic-archive-file", "stat-" + pid + ".gfs")
+        .set("statistic-archive-file", "stat-client-" + pid + ".gfs")
         .addPoolServer(serverHost(cfg), args.serverPort())
         .setPoolSubscriptionEnabled(true)
         .create();
@@ -90,9 +90,8 @@ public abstract class GeodeAbstractBenchmark extends BenchmarkDriverAdapter {
         //peer accessor mode
         gemCache = new CacheFactory()
         .set("mcast-port", "10111")        
-        .set("cache-xml-file", args.accessorConfiguration())
-        .set("statistic-archive-file", "stat-" + pid + ".gfs")
-        .set("statistic-archive-file", "stat-" + pid + ".gfs")
+        .set("cache-xml-file", args.accessorConfiguration())        
+        .set("statistic-archive-file", "stat-accessor-" + pid + ".gfs")
         .create();
       } 
       
