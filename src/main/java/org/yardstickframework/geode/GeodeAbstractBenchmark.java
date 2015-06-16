@@ -30,6 +30,7 @@ import com.gemstone.gemfire.cache.CacheFactory;
 import com.gemstone.gemfire.cache.GemFireCache;
 import com.gemstone.gemfire.cache.Region;
 import com.gemstone.gemfire.cache.client.ClientCacheFactory;
+import com.gemstone.gemfire.cache.client.NoAvailableServersException;
 
 /**
  * Abstract class for Geode benchmarks.
@@ -77,7 +78,7 @@ public abstract class GeodeAbstractBenchmark extends BenchmarkDriverAdapter {
 
     if (args.clientMode()) {
       // client mode
-      sleepMs(10000, "Servers are not ready yet, sleeps for 10 second");
+      sleepMs(10000, "Servers are not ready yet");
       gemCache = new ClientCacheFactory()
           .set("cache-xml-file", args.clientConfiguration())
           .set("statistic-archive-file", "stat-client-" + pid + ".gfs")
@@ -151,7 +152,7 @@ public abstract class GeodeAbstractBenchmark extends BenchmarkDriverAdapter {
    * @throws Exception
    *           If failed.
    */
-  private void waitForNodes(GeodeBenchmarkArguments benchArgs) throws Exception {
+  private void waitForNodes(GeodeBenchmarkArguments benchArgs){
     boolean allStarted = false;
     String hosts = cfg.customProperties().get("SERVER_HOSTS");
     int totalServer = hosts.split(",").length;
@@ -159,8 +160,22 @@ public abstract class GeodeAbstractBenchmark extends BenchmarkDriverAdapter {
     int expNodes = totalServer;
 
     while (!allStarted) {
-      Set keys = benchArgs.clientMode() ? testRegion.keySetOnServer()
-          : testRegion.keySet();
+      Set keys = null;
+      if (benchArgs.clientMode()) {
+        boolean serverAvailable = false;
+        while (!serverAvailable) {
+          try {
+            keys = testRegion.keySetOnServer();
+            serverAvailable = true;
+          }
+          catch (NoAvailableServersException ex) {
+            sleepMs(1000,"Server are not ready, got NoAvailableServersException" );
+          }
+        }
+      }
+      else {
+        keys = testRegion.keySet();
+      }
       Set nodes = new HashSet();
       for (Object k : keys) {
         if (k instanceof String && ((String)k).startsWith(Constant.SERVER))
@@ -178,7 +193,7 @@ public abstract class GeodeAbstractBenchmark extends BenchmarkDriverAdapter {
   }
   
   private void sleepMs(int ms, String message) {
-    println(message);
+    println(message + ", sleep for " + ms + " ms");
     try {
       Thread.sleep(ms);
     }

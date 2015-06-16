@@ -50,10 +50,13 @@ The following Apache Geode benchmark properties can be defined in the benchmark 
 * `-nn <num>` or `--nodeNumber <num>` - Number of nodes (automatically set in `benchmark.properties`), used to wait for the specified number of nodes to start
 * `-b <num>` or `--backups <num>` - Number of backups for every key (UNUSED)
 * `-gfcfg <path>` or `--gfConfig <path>` - Path to Geode configuration file
-* `-gfclicfg <path>` or `--gfClientConfig <path>` - Path to Geode client configuration file
 * `-gfacfg <path>` or `--gfAccessorConfig <path>` - Path to Geode accessor configuration file
-* `-cm` or `--clientMode` - Flag indicating whether Geode client is used
 * `-r <num>` or `--range` - Range of keys that are randomly generated for cache operations
+
+Client-server mode properties
+* `-cm` or `--clientMode` - Flag indicating whether Geode client is used
+* `-gfclicfg <path>` or `--gfClientConfig <path>` - Path to Geode client configuration file
+* `-sp <num>` or `--serverPort <num>` - Server port client will connect to
 
 For example if we need to run 2 `GeodeNode` servers on localhost with `GeodePutBenchmark` benchmark on localhost then the following configuration should be specified in `benchmark.properties` file:
 
@@ -64,6 +67,23 @@ SERVER_HOSTS=localhost,localhost
 # native Yardstick parameters and are documented in Yardstick framework.
 CONFIGS="-dn GeodePutBenchmark -sn GeodeNode"
 ```
+
+### Running Yardstick Benchmarks
+To run benchmark in accessor-server mode
+```
+$ bin/benchmark-run-all.sh config/benchmark.properties
+```
+
+To run benchmark in client-server mode
+```
+$ bin/benchmark-run-all.sh config/benchmark-client.properties
+```
+
+### Generation of Benchmark Reports
+
+```
+bin/jfreechart-graph-gen.sh -gm COMPARISON -i results_2014-05-20_03-19-21 results_2014-05-20_03-20-35
+``` 
 
 ## Issues
 Use GitHub [issues](https://github.com/rdiyewar/yardstick-geode/issues) to file bugs.

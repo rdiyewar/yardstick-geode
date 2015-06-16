@@ -34,6 +34,18 @@
 		<connection>scm:git:git://github.com/rdiyewar/yardstick-geode.git</connection>
 	</scm>
 
+	<!-- 
+		If you face problem downloading geode dependencies then comment out 
+		<parent> tag, uncomment <repositories> tag and retry again. 
+	-->
+
+	<parent>
+		<groupId>org.apache</groupId>
+		<artifactId>apache</artifactId>
+		<version>8</version>
+	</parent>
+
+<!--   
 	<repositories>
 		<repository>
 			<id>apache-geode-snapshot</id>
@@ -45,6 +57,7 @@
 			</snapshots>
 		</repository>
 	</repositories>
+-->
 
 	<developers>
 		<developer>
