@@ -14,8 +14,6 @@
 
 package org.yardstickframework.geode;
 
-import static org.yardstickframework.BenchmarkUtils.println;
-
 import java.util.Map;
 
 /**
@@ -32,8 +30,6 @@ public class GeodeGetBenchmark extends GeodeAbstractBenchmark {
     int key = nextRandom(args.range());
 
     testRegion.get(key);
-    println("Get with key " + key);
-
     return true;
   }
 }

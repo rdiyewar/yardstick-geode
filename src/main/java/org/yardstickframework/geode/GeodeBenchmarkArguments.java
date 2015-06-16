@@ -73,7 +73,7 @@ public class GeodeBenchmarkArguments {
   }
 
   /**
-   * @return Nodes.
+   * @return Total number of nodes under test, server + driver nodes.
    */
   public int nodes() {
     return nodes;

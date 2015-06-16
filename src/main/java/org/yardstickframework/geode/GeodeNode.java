@@ -19,7 +19,6 @@ import static org.yardstickframework.BenchmarkUtils.println;
 
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
-import java.util.Set;
 
 import org.yardstickframework.BenchmarkConfiguration;
 import org.yardstickframework.BenchmarkServer;
@@ -27,11 +26,16 @@ import org.yardstickframework.BenchmarkUtils;
 
 import com.gemstone.gemfire.cache.Cache;
 import com.gemstone.gemfire.cache.CacheFactory;
+import com.gemstone.gemfire.cache.Region;
+import com.gemstone.gemfire.cache.control.RebalanceFactory;
+import com.gemstone.gemfire.cache.control.RebalanceOperation;
+import com.gemstone.gemfire.cache.control.RebalanceResults;
+import com.gemstone.gemfire.cache.partition.PartitionRegionHelper;
 import com.gemstone.gemfire.cache.server.CacheServer;
-import com.gemstone.gemfire.distributed.DistributedMember;
+import com.gemstone.gemfire.internal.cache.PartitionedRegion;
 
 /**
- * Standalone Geode node.
+ * Stand alone Geode node.
  */
 public class GeodeNode implements BenchmarkServer {
   /** */
@@ -50,9 +54,6 @@ public class GeodeNode implements BenchmarkServer {
     println(cfg, "Geode benchmark config: [" + benchArgs + "].");
 
     configureAndStart(benchArgs, cfg);
-    waitForNodes(benchArgs);
-
-    println(cfg, "All Geode members started.");
   }
 
   /**
@@ -60,9 +61,10 @@ public class GeodeNode implements BenchmarkServer {
    *
    * @param benchArgs
    *          Arguments.
+   * @throws InterruptedException 
    */
   private void configureAndStart(GeodeBenchmarkArguments benchArgs,
-      BenchmarkConfiguration cfg) {
+      BenchmarkConfiguration cfg) throws InterruptedException {
     if (gemCache == null) {
       String pid = ManagementFactory.getRuntimeMXBean().getName().replace('@','-');
       gemCache = new CacheFactory()
@@ -70,60 +72,69 @@ public class GeodeNode implements BenchmarkServer {
           .set("statistic-archive-file", "stat-server-" + pid + ".gfs")
           .set("cache-xml-file", benchArgs.configuration())
           .create();
-      
-      //start cache server in client mode
-      if(benchArgs.clientMode()){
-        CacheServer cServer = gemCache.addCacheServer();
-        int port = benchArgs.serverPort();
-        int tryCnt = 0;
-        boolean started = false;        
-        while (!started && tryCnt < 100){
-          try {
-            cServer.setPort(port);
-            cServer.start();
-            started=true;
-          }
-          catch (IOException e) {
-            println(cfg, "Unable to start cache server on port=" + port);
-            port ++;
-            tryCnt++;
-          }  
-        }
-      } 
+   
+      startCacheServer(benchArgs);
+      createBuckets();
+      makeServerReady();
     }
   }
 
+  private void startCacheServer(GeodeBenchmarkArguments benchArgs){
+    CacheServer cServer = gemCache.addCacheServer();
+    int port = benchArgs.serverPort();
+    int tryCnt = 0;
+    boolean started = false;
+    while (!started && tryCnt < 100) {
+      try {
+        cServer.setPort(port);
+        cServer.start();
+        started = true;
+      }
+      catch (IOException e) {
+        println("Unable to start cache server on port=" + port);
+        port++;
+        tryCnt++;
+      }
+    }
+  }
+  
+  private void createBuckets() throws InterruptedException {
+    if (gemCache != null) {
+      for (Region r : gemCache.rootRegions()) {
+        if (r.getAttributes().getDataPolicy().withPartitioning()) {
+          println("Creating buckets for region " + r.getName());
+          PartitionRegionHelper.assignBucketsToPartitions(r);
+          RebalanceFactory rf = gemCache.getResourceManager()
+              .createRebalanceFactory();
+          RebalanceOperation ro = rf.start();
+          RebalanceResults results = ro.getResults(); // blocking call
+          println("Created buckets for region " + r.getName());
+        }
+        else {
+          println("Skipping region " + r.getName() + " with data policy "
+              + r.getAttributes().getDataPolicy());
+        }
+      }
+    }
+  }
+  
+  private void makeServerReady() {
+    PartitionedRegion r = (PartitionedRegion)gemCache.getRegion("testRegion");
+    String key = Constant.SERVER + gemCache.getDistributedSystem().getDistributedMember().getId();    
+    r.put(key, new Integer(1));
+    println("Server is ready " + key);
+  }
+  
   /** {@inheritDoc} */
   @Override
   public void stop() throws Exception {
     gemCache.close();
-    println("Stopped server node");
+    println("Stopped server node ");
   }
 
   /** {@inheritDoc} */
   @Override
   public String usage() {
     return BenchmarkUtils.usage(new GeodeBenchmarkArguments());
-  }
-
-  /**
-   * @throws Exception
-   *           If failed.
-   */
-  private void waitForNodes(GeodeBenchmarkArguments benchArgs) throws Exception {
-    boolean allStarted = false;
-    while (!allStarted) {
-      Set<DistributedMember> otherMembers = gemCache.getDistributedSystem()
-          .getAllOtherMembers();
-      int expNodes = benchArgs.clientMode() ? benchArgs.nodes() - 2 : benchArgs.nodes() - 1;
-      if (otherMembers.size() >= expNodes) {
-        allStarted = true;
-      }
-      else {
-        println("Waiting for " + (benchArgs.nodes() - 1)
-            + " server nodes to start...");
-        Thread.sleep(1000);
-      }
-    }
   }
 }
