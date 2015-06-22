@@ -187,7 +187,7 @@ public abstract class GeodeAbstractBenchmark extends BenchmarkDriverAdapter {
       }
       else {
         String s = "Waiting for " + expNodes + " server nodes to start, till now started : " + nodes; 
-        sleepMs(2000, s);
+        sleepMs(5000, s);
       }
     }
   }

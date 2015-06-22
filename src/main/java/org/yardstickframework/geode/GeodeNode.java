@@ -19,6 +19,8 @@ import static org.yardstickframework.BenchmarkUtils.println;
 
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.yardstickframework.BenchmarkConfiguration;
 import org.yardstickframework.BenchmarkServer;
@@ -74,7 +76,9 @@ public class GeodeNode implements BenchmarkServer {
           .create();
    
       startCacheServer(benchArgs);
-      createBuckets();
+      if (isLastNode(cfg))
+        createBuckets();
+
       makeServerReady();
     }
   }
@@ -119,7 +123,7 @@ public class GeodeNode implements BenchmarkServer {
   }
   
   private void makeServerReady() {
-    PartitionedRegion r = (PartitionedRegion)gemCache.getRegion("testRegion");
+    PartitionedRegion r = (PartitionedRegion)gemCache.getRegion(Constant.REGION_NAME);
     String key = Constant.SERVER + gemCache.getDistributedSystem().getDistributedMember().getId();    
     r.put(key, new Integer(1));
     println("Server is ready " + key);
@@ -136,5 +140,23 @@ public class GeodeNode implements BenchmarkServer {
   @Override
   public String usage() {
     return BenchmarkUtils.usage(new GeodeBenchmarkArguments());
+  }
+  
+  private boolean isLastNode(BenchmarkConfiguration cfg) {
+    boolean isLast = false;
+    String hosts = cfg.customProperties().get("SERVER_HOSTS");
+    int totalServer = hosts.split(",").length;
+    
+    Set keys = gemCache.getRegion(Constant.REGION_NAME).keySet();
+    Set members = new HashSet();
+    for (Object k : keys) {
+      if (k instanceof String && ((String)k).startsWith(Constant.SERVER))
+        members.add(k);
+    }
+
+    if (members.size() >= totalServer - 1)
+      isLast = true;
+
+    return isLast;
   }
 }
